@@ -34,17 +34,48 @@ public class AudioResources : MonoBehaviour
     void Start()
     {
         Instance = this;
-        backgroundMusic.Play();
+        initSliders();
+        handleListeners();
+        AudioManager.PlayBackgroundMusic(backgroundMusic);
     }
 
-    void Update()
+    void initSliders()
     {
-        backgroundMusic.volume = musicSlider.value;
-        voiceMusic.volume = voiceSlider.value;
-        ambientalMusic.volume = ambientalSlider.value;
-        foreach (AudioSource sfxSong in sfxMusic)
-        {
-            sfxSong.volume = sfxSlider.value;
-        }
+        musicSlider.value = AudioManager.GetVolume(AudioManager.AudioChannel.Music);
+        voiceSlider.value = AudioManager.GetVolume(AudioManager.AudioChannel.Voice);
+        sfxSlider.value = AudioManager.GetVolume(AudioManager.AudioChannel.SFX);
+        ambientalSlider.value = AudioManager.GetVolume(AudioManager.AudioChannel.Ambiental);
     }
+
+    void handleListeners()
+    {
+        musicSlider.onValueChanged.AddListener(delegate { changeBackgroundVolume(); });
+        voiceSlider.onValueChanged.AddListener(delegate { changeVoiceVolume(); });
+        sfxSlider.onValueChanged.AddListener(delegate { changeSFXVolume(); });
+        ambientalSlider.onValueChanged.AddListener(delegate { changeAmbientalVolume(); });
+    }
+
+    void changeBackgroundVolume()
+    {
+        AudioManager.SetVolume(AudioManager.AudioChannel.Music, musicSlider.value);
+        AudioManager.SaveSettings();
+    }
+    void changeVoiceVolume()
+    {
+        AudioManager.SetVolume(AudioManager.AudioChannel.Voice, voiceSlider.value);
+        AudioManager.SaveSettings();
+    }
+
+    void changeSFXVolume()
+    {
+        AudioManager.SetVolume(AudioManager.AudioChannel.SFX, sfxSlider.value);
+        AudioManager.SaveSettings();
+    }
+
+    void changeAmbientalVolume()
+    {
+        AudioManager.SetVolume(AudioManager.AudioChannel.Ambiental, ambientalSlider.value);
+        AudioManager.SaveSettings();
+    }
+
 }

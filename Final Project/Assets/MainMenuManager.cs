@@ -26,8 +26,6 @@ public class MainMenuManager : MonoBehaviour
 
     public Button back;
 
-    // by tag
-
 	// Use this for initialization
 	void Start ()
     {
@@ -89,26 +87,21 @@ public class MainMenuManager : MonoBehaviour
 
     void NewGame()
     {
-        //SceneManager.LoadScene(1);        
-        //Press the space key to start coroutine
-        if (Input.GetKey(KeyCode.Space))
-        {
-            //Use a coroutine to load the Scene in the background
-            StartCoroutine(LoadYourAsyncScene());
-        }
+        //SceneManager.LoadScene(1);
+        StartCoroutine(LoadYourAsyncScene());
     }
 
     IEnumerator LoadYourAsyncScene()
     {
-        // The Application loads the Scene in the background at the same time as the current Scene.
-        //This is particularly good for creating loading screens. You could also load the Scene by build //number.
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(1);
 
-        //Wait until the last operation fully loads to return anything
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
+
+        this.GetComponentInChildren<Canvas>().enabled = false;
+        AudioManager.StopBackgroundMusic();
     }
 
     void LoadGame()

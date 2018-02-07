@@ -13,6 +13,8 @@ public class Motor : MonoBehaviour {
     private Animator anim;
     private Vector3 moveVector;
 
+    public AudioSource footsteps;
+
     private void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -28,6 +30,15 @@ public class Motor : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             anim.SetTrigger("Attack");
+        }
+
+        if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
+        {
+            footsteps.Play();
+        }
+        else if (!Input.GetButton("Horizontal") && !Input.GetButton("Vertical") && footsteps.isPlaying)
+        {
+            footsteps.Stop();
         }
 
         float speed = (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed);

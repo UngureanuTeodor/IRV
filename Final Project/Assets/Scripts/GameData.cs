@@ -5,13 +5,23 @@ using System.IO;
 
 using UnityEngine;
 
-// For XML serialization
-using System.Xml.Serialization;
+using System.Data;
+using System.Data.SqlClient;
+using Mono.Data.SqliteClient;
 
-[XmlRoot("GameData")]
+// For XML serialization
+// using System.Xml.Serialization;
+
+// [XmlRoot("GameData")]
 public class GameData
 {
     public static GameData Instance = new GameData();
+
+    public int health;
+    public int charisma;
+    public int coins;
+    public int activ;
+
     //private static string XMLFileName = "/GameData.xml";
     //private static string gameDataFile = Application.persistentDataPath + XMLFileName;
 
@@ -127,7 +137,74 @@ public class GameData
     //}
 
     public static void Load()
-    { 
-        
+    {
+        // The name of the db.
+        string dbName = "URI=file:Example.db";
+
+        // Open the db connection.
+        using (var connection = new SqliteConnection(dbName))
+        {
+            connection.Open();
+
+            // Create an sql command that creates a new table.
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "CREATE TABLE IF NOT EXISTS User_Config (Health INT, Charisma INT, Coins INT, Activ INT);";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "SELECT COUNT(*) AS InstanceCount FROM User_Config";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    int x = 0;
+                    int y = 0;
+                    while (reader.Read())
+                    {
+                        if (reader.GetInt32(0).CompareTo(0) == 1) {
+                            command.CommandText = "INSERT INTO User_Config (Health, Charisma, Coins, Activ) VALUES (100, 100, 0, 0);";
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    reader.Close();
+                }
+
+                command.CommandText = "SELECT Health, Charisma, Coins, Activ FROM User_Config";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Instance.health     = (int)reader["Health"];
+                        Instance.charisma   = (int)reader["Charisma"];
+                        Instance.coins      = (int)reader["Coins"];
+                        Instance.activ      = (int)reader["Activ"];
+                    }
+                    reader.Close();
+                }
+
+
+                //command.CommandText = "CREATE TABLE IF NOT EXISTS highscore (name VARCHAR(20), score INT);";
+                //command.ExecuteNonQuery();
+
+                // Create test datasets
+                //command.CommandText = "INSERT INTO highscore (name, score) VALUES ('Ash', 9000);";
+                //command.ExecuteNonQuery();
+
+                //command.CommandText = "insert into highscore (name, score) values ('Evil Dead', 12064);";
+                //command.ExecuteNonQuery();
+
+                //command.CommandText = "insert into highscore (name, score) values ('chainsaw', 15000);";
+                //command.ExecuteNonQuery();
+
+                // Read the datasets
+                //command.CommandText = "select * from highscore order by score desc;";
+                //using (IDataReader reader = command.ExecuteReader())
+                //{
+                //    while (reader.Read())
+                //        Debug.Log("Name: " + reader["name"] + "\tScore: " + reader["score"]);
+
+                //    reader.Close();
+                //}
+            }
+            connection.Close();
+        }
     }
 }

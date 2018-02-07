@@ -104,6 +104,11 @@ public class AudioManager
         source.PlayDelayed(delay);
     }
 
+    public static void StopSFX(AudioSource source)
+    {
+        source.Stop();
+    }
+
     public static void PlayVoice(AudioSource source, float delay = 0)
     {
         source.volume = volumeVoice;
@@ -116,6 +121,12 @@ public class AudioManager
     public static void PlayBackgroundMusic(AudioSource source)
     {
         backgroundMusic = source;
+        source.Play();
+    }
+
+    public static void StopBackgroundMusic()
+    {
+        backgroundMusic.Stop();
     }
 
     public static void PlayAmbientalSound(AudioSource source, float delay = 0)
