@@ -24,7 +24,6 @@ C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\Unity.UNet
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\Unity.CecilTools.dll
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\Unity.Cecil.Pdb.dll
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\Unity.Cecil.Mdb.dll
-C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\UnityEngine.xml
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\UnityEditor.xml
 C:\Users\Gogau\Documents\IRV Project\IRV\Final Project\Temp\bin\Debug\UnityEngine.UI.xml
