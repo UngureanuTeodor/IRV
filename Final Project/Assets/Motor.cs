@@ -19,6 +19,7 @@ public class Motor : MonoBehaviour {
     {
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
+        footsteps = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -36,7 +37,7 @@ public class Motor : MonoBehaviour {
         {
             footsteps.Play();
         }
-        else if (!Input.GetButton("Horizontal") && !Input.GetButton("Vertical") && footsteps.isPlaying)
+        else if (! Input.GetButtonDown("Horizontal") && ! Input.GetButtonDown("Vertical") && footsteps.isPlaying)
         {
             footsteps.Stop();
         }

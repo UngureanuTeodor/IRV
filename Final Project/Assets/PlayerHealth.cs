@@ -1,85 +1,117 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int startingHealth = 100;                            // The amount of health the player starts the game with.
-    public int currentHealth;                                   // The current health the player has.
-    public Slider healthSlider;                                 // Reference to the UI's health bar.
-    public Image damageImage;                                   // Reference to an image to flash on the screen on being hurt.
-    public AudioClip deathClip;                                 // The audio clip to play when the player dies.
-    public float flashSpeed = 5f;                               // The speed the damageImage will fade at.
-    public Color flashColour = new Color(1f, 0f, 0f, 0.1f);     // The colour the damageImage is set to, to flash.
+    public int startingHealth = 100;
+    public int currentHealth;
+    public Slider healthSlider;
+    public Slider charismaSlider;
+    public Text coinsText;
+    public Text sticksText;
+    public Image damageImage;
+    public AudioClip deathClip;
+    public float flashSpeed = 5f;
+    public Color flashColour = new Color(1f, 0f, 0f, 0.1f);
 
-    public int sticks = 0;
+    public int startingCharisma = 100;
+    public int currentCharisma;
+    public int coins;
+    public int sticks;
+    public int chests;
     public GameObject firePrefab;
 
-    AudioSource playerAudio;                                    // Reference to the AudioSource component.
+    AudioSource playerAudio;
 
-    bool isDead;                                                // Whether the player is dead.
-    bool damaged;                                               // True when the player gets damaged.
+    bool isDead;
+    bool damaged;
+    bool isRemovingHealth = false;
 
 
     void Awake()
     {
         playerAudio = GetComponent<AudioSource>();
 
-        // Set the initial health of the player.
         currentHealth = GameData.Instance.health;
-        currentHealth = 50;
+        currentCharisma = GameData.Instance.charisma;
+        coins = GameData.Instance.coins;
+        sticks = GameData.Instance.sticks;
+        chests = GameData.Instance.chests;
+
         healthSlider.value = currentHealth;
+        charismaSlider.value = currentCharisma;
+        coinsText.text = "" + coins;
+        sticksText.text = "" + sticks;
     }
 
 
     void Update()
     {
-        // If the player has just been damaged...
         if (damaged)
         {
-            // ... set the colour of the damageImage to the flash colour.
             damageImage.color = flashColour;
         }
-        // Otherwise...
         else
         {
-            // ... transition the colour back to clear.
             damageImage.color = Color.Lerp(damageImage.color, Color.clear, flashSpeed * Time.deltaTime);
         }
 
-        // Reset the damaged flag.
         damaged = false;
 
         if (Input.GetKeyDown(KeyCode.F))
         {
             if (sticks >= 3)
             {
-                Debug.Log("here");
                 Instantiate(firePrefab, transform.position + new Vector3(-1, 0, 0), transform.rotation);
                 sticks -= 3;
+                sticksText.text = "" + sticks;
+                if (currentHealth <= 90)
+                {
+                    currentHealth += 10;
+                    healthSlider.value = currentHealth;
+                }
             }
+        }
+
+        if (!isRemovingHealth)
+        {
+            StartCoroutine(RemoveHealth());
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            GameData.SaveData(currentHealth, currentCharisma, sticks, coins);
         }
     }
 
+    IEnumerator RemoveHealth()
+    {
+        isRemovingHealth = true;
+        yield return new WaitForSeconds(5f);
+
+        if (currentHealth > 20)
+        {
+            currentHealth -= 10;
+            healthSlider.value = currentHealth;
+        }
+
+        isRemovingHealth = false;
+    }
 
     public void TakeDamage(int amount)
     {
-        // Set the damaged flag so the screen will flash.
         damaged = true;
 
-        // Reduce the current health by the damage amount.
         currentHealth -= amount;
 
-        // Set the health bar's value to the current health.
         healthSlider.value = currentHealth;
 
-        // Play the hurt sound effect.
         playerAudio.Play();
 
-        // If the player has lost all it's health and the death flag hasn't been set yet...
         if (currentHealth <= 0 && !isDead)
         {
-            // ... it should die.
             Death();
         }
     }
@@ -87,10 +119,8 @@ public class PlayerHealth : MonoBehaviour
 
     void Death()
     {
-        // Set the death flag so this function won't be called again.
         isDead = true;
 
-        // Set the audiosource to play the death clip and play it (this will stop the hurt sound from playing).
         playerAudio.clip = deathClip;
         playerAudio.Play();
     }
@@ -98,6 +128,6 @@ public class PlayerHealth : MonoBehaviour
     public void collectStick()
     {
         sticks++;
-        Debug.Log(sticks);
+        sticksText.text = "" + sticks;
     }
 }

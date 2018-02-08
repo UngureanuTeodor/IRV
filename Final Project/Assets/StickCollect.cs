@@ -5,6 +5,7 @@ using UnityEngine;
 public class StickCollect : MonoBehaviour {
 
     public AudioSource collect;
+    public bool isCollecting = false;
 
 	// Use this for initialization
 	void Start () {
@@ -18,9 +19,9 @@ public class StickCollect : MonoBehaviour {
             Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, 1);
             for (int i = 0; i < hitColliders.Length; i++)
             {
-                Debug.Log(hitColliders[i].gameObject.tag);
-                if (hitColliders[i].gameObject.tag == "Player")
+                if (hitColliders[i].gameObject.tag == "Player" && ! isCollecting)
                 {
+                    isCollecting = true;
                     collect.Play();
                     hitColliders[i].GetComponent<PlayerHealth>().collectStick();
                     StartCoroutine(DestroyStick());

@@ -20,121 +20,8 @@ public class GameData
     public int health;
     public int charisma;
     public int coins;
-    public int activ;
-
-    //private static string XMLFileName = "/GameData.xml";
-    //private static string gameDataFile = Application.persistentDataPath + XMLFileName;
-
-    //private static bool isLoaded;
-    //public delegate void LoadEvent();
-    //public static event LoadEvent OnLoad;
-
-    //[XmlElement("GameLocation")]
-    //public GameLocation locationID;
-
-    //[XmlElement("Item")]
-    //public ChestBox item = new ChestBox("ChestBox 3", "ASd", GameLocation.Location2);
-
-    //[XmlArray("Rewards")]
-    //public List<ChestBox> rewards = new List<ChestBox>();
-
-    //[XmlArray("Items")]
-    //public List<InventoryItem> items = new List<InventoryItem>();
-
-    //[XmlArray("Pickups")]
-    //public List<InventoryItem> pickups = new List<InventoryItem>();
-
-    //public static void Save()
-    //{
-    //    // Save game state into XML
-    //    var serializer = new XmlSerializer(typeof(GameData));
-    //    var stream = new FileStream(gameDataFile, FileMode.Create);
-    //    serializer.Serialize(stream, Instance);
-    //    stream.Close();
-
-    //    Debug.Log("Gameplay saved again: " + gameDataFile);
-    //}
-
-    //public static void Load()
-    //{
-    //    Debug.Log(gameDataFile);
-
-    //    if (File.Exists(gameDataFile))
-    //    {
-    //        // Load info from XML
-    //        var serializer = new XmlSerializer(typeof(GameData));
-    //        var stream = new FileStream(gameDataFile, FileMode.Open);
-    //        try
-    //        {
-    //            Instance = serializer.Deserialize(stream) as GameData;
-    //            stream.Close();
-
-    //            Debug.Log("Gameplay loaded: " + gameDataFile);
-    //            Debug.Log(Instance.pickups.Count);
-
-    //            isLoaded = true;
-    //            if (OnLoad != null)
-    //                OnLoad();
-    //        }
-    //        catch (SystemException e)
-    //        {
-    //            stream.Close();
-    //            NewGame();
-    //            Save();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        NewGame();
-    //        Save();
-    //    }
-    //}
-
-    //public static void NewGame()
-    //{
-    //    Instance.items.Clear();
-    //    Instance.pickups.Clear();
-
-    //    // list of InventorItems
-    //    Instance.items.Add(new InventoryItem(0, 1, 10, "Sword of...", "Legendary something"));
-    //    Instance.items.Add(new InventoryItem(1, 2, 5, "Armor", "ASidgoiasd"));
-    //    Instance.items.Add(new InventoryItem(2, 1, 10, "Boots", "Info"));
-    //    Instance.items.Add(new InventoryItem(3, 1, 10, "Whatever", "adsfhasdfsdf"));
-
-    //    Instance.pickups.Add(new InventoryItem(4, 1, 12, "Item 4", "Description for item 4"));
-    //    Instance.pickups.Add(new InventoryItem(5, 1, 7, "Item 5", "Description for item 5"));
-    //    Instance.pickups.Add(new InventoryItem(7, 1, 7, "Item 6", "Description for item 6"));
-
-    //    var c1 = new ChestBox("ChestBox 1", "Something 1", GameLocation.Location1);
-    //    var c2 = new ChestBox("ChestBox 2", "Something 2", GameLocation.Location2);
-    //    Instance.rewards.Add(c1);
-    //    Instance.rewards.Add(c2);
-    //}
-
-    //public static void PickItem(InventoryItem item)
-    //{
-    //    Instance.pickups.Remove(item);
-    //    Instance.items.Add(item);
-    //}
-
-    //public static void OnDataInit(LoadEvent callback)
-    //{
-    //    OnLoad += callback;
-
-    //    if (isLoaded == true)
-    //    {
-    //        callback();
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("Game Data Not loaded!");
-    //    }
-    //}
-
-    //public static void RemoveCallback(LoadEvent callback)
-    //{
-    //    OnLoad -= callback;
-    //}
+    public int sticks;
+    public int chests;
 
     public static void Load()
     {
@@ -149,60 +36,103 @@ public class GameData
             // Create an sql command that creates a new table.
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "CREATE TABLE IF NOT EXISTS User_Config (Health INT, Charisma INT, Coins INT, Activ INT);";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS User_Config (ID_User INTEGER PRIMARY KEY AUTOINCREMENT, Health INT NOT NULL, Charisma INT NOT NULL, Coins INT NOT NULL);";
+                command.ExecuteNonQuery();
+
+                // RESOURCES
+                command.CommandText = "CREATE TABLE IF NOT EXISTS Resources (ID_Resource INTEGER PRIMARY KEY AUTOINCREMENT, Name VARCHAR(50) NOT NULL, Description VARCHAR(50));";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "INSERT INTO Resources (Name) VALUES ('Stick'), ('Chest');";
+                command.ExecuteNonQuery();
+                // RESOURCES
+
+                command.CommandText = "CREATE TABLE IF NOT EXISTS User_Resources_Association (ID INTEGER PRIMARY KEY AUTOINCREMENT, ID_User INTEGER NOT NULL, ID_Resource INTEGER NOT NULL, Number_Resources INT NOT NULL);";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "INSERT INTO User_Resources_Association (ID_User, ID_Resource, Number_Resources) VALUES (1, 1, 0), (1, 2, 0);";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "CREATE TABLE IF NOT EXISTS Save_Scenes (ID_Save INTEGER PRIMARY KEY AUTOINCREMENT, Name VARCHAR(50) NOT NULL, Description VARCHAR(50), Save_Date VARCHAR(50) NOT NULL);";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "CREATE TABLE IF NOT EXISTS User_Save_Scenes_Association (ID INTEGER PRIMARY KEY AUTOINCREMENT, ID_User INTEGER NOT NULL, ID_Save INTEGER NOT NULL);";
                 command.ExecuteNonQuery();
 
                 command.CommandText = "SELECT COUNT(*) AS InstanceCount FROM User_Config";
+                bool noRow = false;
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     int x = 0;
                     int y = 0;
+
                     while (reader.Read())
                     {
-                        if (reader.GetInt32(0).CompareTo(0) == 1) {
-                            command.CommandText = "INSERT INTO User_Config (Health, Charisma, Coins, Activ) VALUES (100, 100, 0, 0);";
+                        if (reader.GetInt32(0).CompareTo(0) == 0)
+                        {
+                            command.CommandText = "INSERT INTO User_Config (Health, Charisma, Coins) VALUES (100, 100, 0);";
                             command.ExecuteNonQuery();
+
+                            noRow = true;
                         }
                     }
                     reader.Close();
                 }
 
-                command.CommandText = "SELECT Health, Charisma, Coins, Activ FROM User_Config";
-                using (IDataReader reader = command.ExecuteReader())
+                if (noRow)
                 {
-                    while (reader.Read())
+                    Instance.health = 100;
+                    Instance.charisma = 100;
+                    Instance.coins = 0;
+                    Instance.sticks = 0;
+                    Instance.chests = 0;
+                }
+                else
+                {
+                    command.CommandText =   "SELECT User_Config.Health, User_Config.Charisma, User_Config.Coins, User_Resources_Association.Number_Resources " +
+                                            "FROM User_Config, User_Resources_Association " +
+                                            "WHERE User_Config.ID_User = 1 AND User_Config.ID_User = User_Resources_Association.ID_User AND User_Resources_Association.ID_Resource = 1;";
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        Instance.health     = (int)reader["Health"];
-                        Instance.charisma   = (int)reader["Charisma"];
-                        Instance.coins      = (int)reader["Coins"];
-                        Instance.activ      = (int)reader["Activ"];
+                        int x = 0;
+                        int y = 0;
+
+                        while (reader.Read())
+                        {
+                            Instance.health = reader.GetInt32(0);
+                            Instance.charisma = reader.GetInt32(1);
+                            Instance.coins = reader.GetInt32(2);
+                            Instance.sticks = reader.GetInt32(3);
+                            Debug.Log(reader.GetInt32(3));
+                            Instance.chests = 0;
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
 
+            }
+            connection.Close();
+        }
+    }
 
-                //command.CommandText = "CREATE TABLE IF NOT EXISTS highscore (name VARCHAR(20), score INT);";
-                //command.ExecuteNonQuery();
+    public static void SaveData(int currentHealth, int currentCharisma, int sticks, int coins)
+    {
+        // The name of the db.
+        string dbName = "URI=file:Example.db";
 
-                // Create test datasets
-                //command.CommandText = "INSERT INTO highscore (name, score) VALUES ('Ash', 9000);";
-                //command.ExecuteNonQuery();
+        // Open the db connection.
+        using (var connection = new SqliteConnection(dbName))
+        {
+            connection.Open();
 
-                //command.CommandText = "insert into highscore (name, score) values ('Evil Dead', 12064);";
-                //command.ExecuteNonQuery();
+            // Create an sql command that creates a new table.
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "UPDATE User_Config SET Health = " + currentHealth + ", Charisma = " + currentCharisma + ", Coins = " + coins;
+                command.ExecuteNonQuery();
 
-                //command.CommandText = "insert into highscore (name, score) values ('chainsaw', 15000);";
-                //command.ExecuteNonQuery();
-
-                // Read the datasets
-                //command.CommandText = "select * from highscore order by score desc;";
-                //using (IDataReader reader = command.ExecuteReader())
-                //{
-                //    while (reader.Read())
-                //        Debug.Log("Name: " + reader["name"] + "\tScore: " + reader["score"]);
-
-                //    reader.Close();
-                //}
+                command.CommandText = "UPDATE User_Resources_Association SET Number_Resources = " + sticks + " WHERE ID_User = 1 AND ID_Resource = 1;";
+                command.ExecuteNonQuery();
             }
             connection.Close();
         }
